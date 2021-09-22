@@ -1,5 +1,5 @@
 /* -===applyed patches===-  
-   alpha-patch (transparency)
+  alpha-patch (transparency)
    gaps
    cool-autostart */
 
@@ -34,13 +34,14 @@ static const unsigned int alphas[][3]      = {
 static const char *const autostart[] = {
 	"st", NULL, 						/* launch my favourite terminal by login */
 	"sh", "-c", "nitrogen --restore", NULL,			/* set wallpaper */
-	"sh", "-c", "picom -fc", NULL,				/* launch picom, a compositor for more bling */
+	"sh", "-c", "picom --experimental-backends", NULL,	/* launch picom, a compositor for more bling */
 	"sh", "-c", "setxkbmap de", NULL,			/* set keyboard to deutsches layout */
+	"sh", "-c", "dwmblocks", NULL, 				/* launch dwmblocks */
 	NULL 							/* terminate */
 };
 
 /* tagging */
-static const char *tags[] = { " " , " 爵 ", "  ", "  ", "  ", "  ", "  ", };
+static const char *tags[] = { "  " , "  ", "  ", "  ", "  ", "  ", "  ", };
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -50,6 +51,7 @@ static const Rule rules[] = {
 	/* class      instance    title       tags mask     isfloating   monitor */
 	{ "Gimp",     NULL,       NULL,       0,            1,           -1 },
 	{ "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
+	{ "steam",    NULL,       NULL,       1 << 8,       1,           -1 },
 };
 
 /* layout(s) */
@@ -65,7 +67,9 @@ static const Layout layouts[] = {
 };
 
 /* key definitions */
+#include <X11/XF86keysym.h>
 #define MODKEY Mod4Mask
+#define AltMask Mod1Mask
 #define TAGKEYS(KEY,TAG) \
 	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
 	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
@@ -80,6 +84,9 @@ static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() 
 /* static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL }; */
 static const char *dmenucmd[] = { "/home/ghost/scripts/dmenu.sh", NULL };
 static const char *termcmd[]  = { "st", NULL };
+static const char *upvol[]    = { "pamixer", "-i", "5", NULL };
+static const char *downvol[]  = { "pamixer", "-d", "5",	NULL };
+static const char *mutevol[]  = { "pamixer", "--toggle-mute", NULL };
 
 static Key keys[] = {
 	/* modifier                     key        function        argument */
@@ -107,6 +114,8 @@ static Key keys[] = {
 	{ MODKEY,                       XK_minus,  setgaps,        {.i = -5 } },
 	{ MODKEY,                       XK_plus,   setgaps,        {.i = +5 } },
 	{ MODKEY|ShiftMask,             XK_equal,  setgaps,        {.i = 0  } },
+	{ MODKEY,			XK_Up,	   spawn,	   {.v = upvol} },
+	{ MODKEY,			XK_Down,   spawn,	   {.v = downvol} }, 
 	TAGKEYS(                        XK_1,                      0)
 	TAGKEYS(                        XK_2,                      1)
 	TAGKEYS(                        XK_3,                      2)
