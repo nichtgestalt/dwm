@@ -8,12 +8,12 @@ static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 static const int vertpad            = 10;       /* vertical padding of bar */
 static const int sidepad            = 10;       /* horizontal padding of bar */
-static const char *fonts[]          = { "monospace:size=12" };
+static const char *fonts[]          = { "Hack Nerd Font:size=12" };
 static const char dmenufont[]       = "monospace:size=12";
-static const char norBG[]           = "#232627";
+static const char norBG[]           = "#232628";
 static const char norFG[]           = "#7f8c8d";
-static const char norBD[]           = "#31363b";
-static const char selFG[]           = "#eff0f1";
+static const char norBD[]           = "#4c566a";
+static const char selFG[]           = "#fcfcfc";
 static const char selBG[]           = "#1b668f";
 static const char selBD[]           = "#1b668f";
 static const char *colors[][3]      = {
@@ -30,6 +30,7 @@ static const char *const autostart[] = {
 	"dunst", NULL,
 	"xset", "r", "rate", "250", "30", NULL,
 	"xset", "s", "off", "-dpms", NULL,
+	"notify-send", "What bugs you?", NULL,
 	NULL /* terminate */
 };
 
@@ -43,6 +44,8 @@ static const Rule rules[] = {
 	 */
 	/* class      instance    title       tags mask     isfloating   monitor */
 	{ "Nitrogen", NULL,       NULL,       0,            1,           -1 },
+	{ "Floating" ,NULL,       NULL,       0,            1,           -1 },
+	{ "steam"    ,NULL,       NULL,       1 << 5,       1,           -1 },
 //	{ "Gimp",     NULL,       NULL,       0,            1,           -1 },
 //	{ "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
 };
@@ -82,36 +85,42 @@ static const char *screenshot []  = { "flameshot", "gui", NULL };
 
 static Key keys[] = {
 	/* modifier                     key        function        argument */
-	{ MODKEY,                       XK_space,  spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
-	{ MODKEY,                       XK_F7,     spawn,          SHCMD("pactl set-sink-volume 1 -10% ; kill -44 $(pidof dwmblocks)") },
-	{ MODKEY,                       XK_F8,     spawn,          SHCMD("pactl set-sink-volume 1 +10% ; kill -44 $(pidof dwmblocks)") },
-	{ MODKEY,                       XK_F9,     spawn,          {.v = browser } },
-	{ MODKEY,                       XK_F12,    spawn,          {.v = screenshot } },
+	{ MODKEY,                       XK_space,  spawn,          {.v = dmenucmd } },
+	{ MODKEY|ShiftMask,             XK_space,  spawn,          SHCMD("rofi -drun-categories Game -show drun") },
+	{ MODKEY,                       XK_a,      spawn,          SHCMD("alacritty -e tagesplanung") },
+	{ MODKEY|ALTKEY,                XK_a,      spawn,          SHCMD("alacritty --class Floating -e tagesplanung") },
+	{ MODKEY|ShiftMask,             XK_a,      spawn,          SHCMD("planselector") },
+	{ MODKEY,                       XK_u,      spawn,          SHCMD("alacritty --class Floating -e notetaker") },
+	{ MODKEY|ShiftMask,             XK_u,      spawn,          SHCMD("noteselector") },
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_r,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_t,      focusstack,     {.i = -1 } },
 	{ MODKEY,                       XK_n,      setmfact,       {.f = -0.05} },
 	{ MODKEY,                       XK_d,      setmfact,       {.f = +0.05} },
-//	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
-//	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
+	{ MODKEY,                       XK_s,      incnmaster,     {.i = +1 } },  // Increase the numbers of Master in the layout
+	{ MODKEY,                       XK_y,      incnmaster,     {.i = -1 } },
+	{ MODKEY,                       XK_c,      setlayout,      {0} },
+	{ MODKEY|ShiftMask,             XK_h,      togglefloating, {0} },
+	{ MODKEY,                       XK_x,      killclient,     {0} },
+	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
+
 	{ MODKEY|ShiftMask,             XK_Return, zoom,           {0} },
 	{ Mod1Mask,                     XK_Tab,    view,           {0} },
-	{ MODKEY,                       XK_x,      killclient,     {0} },
-	{ MODKEY|ALTKEY,                XK_t,      setlayout,      {.v = &layouts[0]} },
-	{ MODKEY|ALTKEY,                XK_f,      setlayout,      {.v = &layouts[1]} },
-	{ MODKEY|ALTKEY,                XK_m,      setlayout,      {.v = &layouts[2]} },
-//	{ MODKEY,                       XK_space,  setlayout,      {0} },
-//	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
-	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
-	{ MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
-	{ MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
-	{ MODKEY,                       XK_period, focusmon,       {.i = +1 } },
-	{ MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
-	{ MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
-	{ MODKEY|ALTKEY,                XK_comma,  setgaps,        {.i = -1 } },
-	{ MODKEY|ALTKEY,                XK_period, setgaps,        {.i = +1 } },
-	{ MODKEY|ALTKEY|ShiftMask,      XK_period, setgaps,        {.i = 10 } },
+	{ MODKEY,                       XK_comma,  setgaps,        {.i = -1 } },
+	{ MODKEY,                       XK_period, setgaps,        {.i = +1 } },
+	{ MODKEY|ShiftMask,             XK_period, setgaps,        {.i = 10 } },
+
+	{ MODKEY,                       XK_F4,     spawn,          SHCMD("powermenu") },
+	{ MODKEY,                       XK_F5,     spawn,          SHCMD("setxkbmap de neo && notify-send 'Keyboard: Neo2'") },
+	{ ALTKEY,                       XK_F5,     spawn,          SHCMD("alcolor") },
+	{ MODKEY,                       XK_F6,     spawn,          SHCMD("setxkbmap de && notify-send 'Keyboard: German'") },
+	{ ALTKEY,                       XK_F6,     spawn,          SHCMD("alfont") },
+	{ MODKEY,                       XK_F7,     spawn,          SHCMD("pactl set-sink-volume 1 -10% ; kill -44 $(pidof dwmblocks)") },
+	{ MODKEY,                       XK_F8,     spawn,          SHCMD("pactl set-sink-volume 1 +10% ; kill -44 $(pidof dwmblocks)") },
+	{ MODKEY,                       XK_F9,     spawn,          {.v = browser } },
+	{ MODKEY,                       XK_F12,    spawn,          {.v = screenshot } },
+	
 	TAGKEYS(                        XK_1,                      0)
 	TAGKEYS(                        XK_2,                      1)
 	TAGKEYS(                        XK_3,                      2)
@@ -121,7 +130,17 @@ static Key keys[] = {
 	TAGKEYS(                        XK_7,                      6)
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
-	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
+
+//      { Some not used default keybindings                                           }
+	{ MODKEY|ALTKEY,                XK_t,      setlayout,      {.v = &layouts[0]} },
+	{ MODKEY|ALTKEY,                XK_f,      setlayout,      {.v = &layouts[1]} },
+	{ MODKEY|ALTKEY,                XK_m,      setlayout,      {.v = &layouts[2]} },
+	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
+	{ MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
+//	{ MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
+//	{ MODKEY,                       XK_period, focusmon,       {.i = +1 } },
+	{ MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
+	{ MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
 };
 
 /* button definitions */
